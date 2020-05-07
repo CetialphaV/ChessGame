@@ -1,5 +1,7 @@
 from pygameSupport import PygameEnviroment as env
 import pygame
+from math import ceil
+
 
 
 class game:
@@ -10,8 +12,6 @@ class game:
 
 
     def __init__(self):
-
-
         self.numDots = 10
         self.screenMuliplier = 40
         self.size = self.numDots * self.screenMuliplier
@@ -20,6 +20,7 @@ class game:
         self.dotSize = 8
         self.dotBuffer = self.dotSize * 4
         self.lineWidth = int(self.dotSize * 0.75)
+        self.spaceBetweenDots = int((self.size - (self.screenBuffer * 2)) / (self.numDots - 1))
         self.done = False
         self.positionSelected = None
         self.playerTurn = 0
@@ -37,18 +38,16 @@ class game:
     def drawBoard(self):
         for dotRowNum in range(self.numDots):
             for dotColumnNum in range(self.numDots):
-                spaceBetweenDots = int((self.size - (self.screenBuffer * 2)) / (self.numDots-1))
-                dotPostionX = self.screenBuffer + spaceBetweenDots * dotRowNum
-                dotPostionY = self.screenBuffer + spaceBetweenDots * dotColumnNum
+                dotPostionX = self.screenBuffer + self.spaceBetweenDots * dotRowNum
+                dotPostionY = self.screenBuffer + self.spaceBetweenDots * dotColumnNum
                 pygame.draw.circle(self.environment.display, self.dotColor, (dotPostionX, dotPostionY), self.dotSize)
 
 
     def getDotsForLocation(self, location):
-        spaceBetweenDots = int((self.size - (self.screenBuffer * 2)) / (self.numDots - 1))
-        topLeft = ((location[0] * spaceBetweenDots + self.screenBuffer), location[1] * spaceBetweenDots + self.screenBuffer)
-        topRight = (((location[0] + 1) * spaceBetweenDots + self.screenBuffer), location[1] * spaceBetweenDots + self.screenBuffer)
-        bottomLeft = (((location[0]) * spaceBetweenDots + self.screenBuffer), (location[1] + 1) * spaceBetweenDots + self.screenBuffer)
-        bottomRight = (((location[0] + 1) * spaceBetweenDots + self.screenBuffer), (location[1] + 1) * spaceBetweenDots + self.screenBuffer)
+        topLeft = ((location[0] * self.spaceBetweenDots + self.screenBuffer), location[1] * self.spaceBetweenDots + self.screenBuffer)
+        topRight = (((location[0] + 1) * self.spaceBetweenDots + self.screenBuffer), location[1] * self.spaceBetweenDots + self.screenBuffer)
+        bottomLeft = (((location[0]) * self.spaceBetweenDots + self.screenBuffer), (location[1] + 1) * self.spaceBetweenDots + self.screenBuffer)
+        bottomRight = (((location[0] + 1) * self.spaceBetweenDots + self.screenBuffer), (location[1] + 1) * self.spaceBetweenDots + self.screenBuffer)
         dotLocations = {"topLeft": topLeft, "topRight": topRight, "bottomLeft": bottomLeft, "bottomRight": bottomRight}
 
         return dotLocations
@@ -65,6 +64,19 @@ class game:
             pygame.draw.line(self.environment.display, self.lineColor, dotLocations["bottomLeft"], dotLocations["bottomRight"], self.lineWidth)
         if 7 in factorizedNums:
             pygame.draw.line(self.environment.display, self.lineColor, dotLocations["topLeft"], dotLocations["bottomLeft"], self.lineWidth)
+
+    def userClickedLocation(self, location):
+        xDotLoc1 = int((location[0] - self.screenBuffer) / self.spaceBetweenDots)
+        yDotLoc1 = int((location[1] - self.screenBuffer) / self.spaceBetweenDots)
+        xDotLoc2 = ceil((location[0] - self.screenBuffer) / self.spaceBetweenDots)
+        yDorLoc2 = ceil((location[1] - self.screenBuffer) / self.spaceBetweenDots)
+        squareLoc = (xDotLoc1, yDotLoc1)
+        direction = 0
+        if xDotLoc1 < xDotLoc2:
+            print("Top")
+            print("Bottom")
+
+
 
 
 
@@ -84,6 +96,9 @@ class game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.done = True
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    self.userClickedLocation(event.pos)
 
 
 
