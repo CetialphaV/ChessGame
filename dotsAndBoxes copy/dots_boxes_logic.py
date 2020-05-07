@@ -3,6 +3,8 @@ import numpy as np
 # Up - 2, Right - 3, Down - 5, Left - 7
 # Player 1 - 11, Player 2 - 13
 
+
+
 def points(board):
     """
     :param board: Enter board with encoded values
@@ -30,13 +32,20 @@ def board_edit(board, position, player, row_box, col_box):
     :param col_box: Enter the column of the value to be added
     :return: Returns the edited board
     """
-    posit_dict = {'u': 2, 'r': 3, 'd': 5, 'l': 7}
-    board[row_box-1][col_box-1] *= posit_dict[position]
-    if board[row_box-1][col_box-1] % 210 == 0:
-        board[row_box-1][col_box-1] *= (9 + 2 * player)
+    posit_dict = {'u': 0, 'r': 1, 'd': 2, 'l': 3}
+    posit_list = [2, 3, 5, 7]
+    extra_list = [7, 3, 1, 5]
+    for a in range(0, 8):
+        X = int(np.floor(a/3) % 3)
+        Y = a % 3
+        try:
+            if (row_box - X >= 0) and (col_box - Y >= 0):
+                if a == 4:
+                    board[row_box - X][col_box - Y] *= posit_list[posit_dict[position]]
+                elif a == extra_list[posit_dict[position]]:
+                    board[row_box - X][col_box - Y] *= posit_list[(posit_dict[position]+2) % 4]
+                if board[row_box - X][col_box - Y] % 210 == 0:
+                    board[row_box - X][col_box - Y] *= (2*player + 9)
+        except:
+            continue
     return board
-
-
-
-
-
