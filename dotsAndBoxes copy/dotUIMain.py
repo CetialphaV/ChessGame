@@ -1,7 +1,7 @@
 from pygameSupport import PygameEnviroment as env
 import pygame
 from math import ceil
-
+from dots_boxes_logic import *
 
 
 class game:
@@ -24,23 +24,32 @@ class game:
         self.done = False
         self.positionSelected = None
         self.playerTurn = 0
+        self.board = board_maker(self.numDots, self.numDots)
+        self.board[0][0] = 2
+        self.board[1][8] = 7
 
 
 
     def updateGameScreen(self):
         self.environment.resetBackGround(allBackGround=True)
-        self.drawBoard()
+        self.drawDots()
+        self.drawLines()
         self.environment.renderChildren()
-        self.drawLine((0, 1), 5)
         pygame.display.flip()
 
 
-    def drawBoard(self):
+    def drawDots(self):
         for dotRowNum in range(self.numDots):
             for dotColumnNum in range(self.numDots):
                 dotPostionX = self.screenBuffer + self.spaceBetweenDots * dotRowNum
                 dotPostionY = self.screenBuffer + self.spaceBetweenDots * dotColumnNum
                 pygame.draw.circle(self.environment.display, self.dotColor, (dotPostionX, dotPostionY), self.dotSize)
+
+
+    def drawLines(self):
+        for xLoc, row in enumerate(self.board):
+            for yLoc, value in enumerate(row):
+                self.drawLine((xLoc, yLoc), value)
 
 
     def getDotsForLocation(self, location):
@@ -55,7 +64,7 @@ class game:
 
     def drawLine(self, location, numToFactorize):
         dotLocations = self.getDotsForLocation(location)
-        factorizedNums = [3, 5, 7,2]
+        factorizedNums = [numToFactorize]
         if 2 in factorizedNums:
             pygame.draw.line(self.environment.display, self.lineColor, dotLocations["topLeft"], dotLocations["topRight"], self.lineWidth)
         if 3 in factorizedNums:
