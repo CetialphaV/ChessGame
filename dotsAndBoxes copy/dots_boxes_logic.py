@@ -41,9 +41,9 @@ def board_edit(board, position, player, row_box, col_box):
         try:
             if (row_box - X >= 0) and (col_box - Y >= 0):
                 if a == 4:
-                    board[row_box - X][col_box - Y] *= posit_list[posit_dict[position]]
+                    board[row_box - X][col_box - Y] *= posit_list[posit_dict[position]] ** player
                 elif a == extra_list[posit_dict[position]]:
-                    board[row_box - X][col_box - Y] *= posit_list[(posit_dict[position]+2) % 4]
+                    board[row_box - X][col_box - Y] *= posit_list[(posit_dict[position]+2) % 4] ** player
                 if board[row_box - X][col_box - Y] % 210 == 0:
                     board[row_box - X][col_box - Y] *= (2*player + 9)
         except:
