@@ -8,13 +8,15 @@ class game:
     backgroundColor = (255, 226, 188)
     dotColor = (88, 180, 174)
     selectedDotColor = (255, 82, 0)
-    lineColor = (250, 145, 145)
+    lineColorOne = (250, 145, 145)
+    lineColorTwo = (122, 213, 124)
     textColor = (0, 0, 0)
+    playerColors = [(187, 59, 14), (22, 36, 71)]
     RENDEREVENT = pygame.USEREVENT + 1
 
 
     def __init__(self, aiPlaying=False):
-        self.numDots = 10
+        self.numDots = 12
         self.screenMuliplier = 40
         self.size = self.numDots * self.screenMuliplier
         self.environment = env(self.size, self.size, 'DotsAndBoxes')
@@ -25,7 +27,7 @@ class game:
         self.spaceBetweenDots = int((self.size - (self.screenBuffer * 2)) / (self.numDots - 1))
         self.done = False
         self.positionSelected = None
-        self.playerTurn = 0
+        self.playerTurn = 1
         self.board = board_maker(self.numDots, self.numDots)
         self.dotSelected = None
         self.aiPlaying = aiPlaying
@@ -59,9 +61,14 @@ class game:
 
 
     def drawLines(self):
+        squareNotDivisibleBy210 = True
         for xLoc, row in enumerate(self.board):
             for yLoc, value in enumerate(row):
-                self.drawLine((xLoc, yLoc), value)
+                self.drawLine((yLoc, xLoc), value)
+                if value % 210 != 0:
+                    squareNotDivisibleBy210 = False
+
+        self.done = squareNotDivisibleBy210
 
     def message_display(self, text, pos, fontSize, bottomLeftAlignment=True):
         largeText = pygame.font.Font('freesansbold.ttf', fontSize)
@@ -74,8 +81,9 @@ class game:
         self.environment.display.blit(textSurface, textRect)
 
     def displayScore(self):
+
         self.message_display(f"Player 1 Score: {self.player1Score}", (int((self.screenBuffer * 2)), int(self.screenBuffer/2)), self.fontSize)
-        self.message_display(f"Player 2 Score: {self.player1Score}", (int(self.size - self.screenBuffer * 2), int(self.screenBuffer / 2)), self.fontSize, False)
+        self.message_display(f"Player 2 Score: {self.player2Score}", (int(self.size - self.screenBuffer * 2), int(self.screenBuffer / 2)), self.fontSize, False)
 
 
     def getDotsForLocation(self, location):
@@ -90,15 +98,41 @@ class game:
 
     def drawLine(self, location, numToFactorize):
         dotLocations = self.getDotsForLocation(location)
-        factorizedNums = [numToFactorize]
-        if 2 in factorizedNums:
-            pygame.draw.line(self.environment.display, self.lineColor, dotLocations["topLeft"], dotLocations["topRight"], self.lineWidth)
-        if 3 in factorizedNums:
-            pygame.draw.line(self.environment.display, self.lineColor, dotLocations["topRight"], dotLocations["bottomRight"], self.lineWidth)
-        if 5 in factorizedNums:
-            pygame.draw.line(self.environment.display, self.lineColor, dotLocations["bottomLeft"], dotLocations["bottomRight"], self.lineWidth)
-        if 7 in factorizedNums:
-            pygame.draw.line(self.environment.display, self.lineColor, dotLocations["topLeft"], dotLocations["bottomLeft"], self.lineWidth)
+        if numToFactorize % 2 == 0:
+            if (numToFactorize/2) % 2 == 0:
+                lineColor = self.lineColorOne
+            else:
+                lineColor = self.lineColorTwo
+            pygame.draw.line(self.environment.display, lineColor, dotLocations["topLeft"], dotLocations["topRight"], self.lineWidth)
+        if numToFactorize % 3 == 0:
+            if (numToFactorize/3) % 3 == 0:
+                lineColor = self.lineColorOne
+            else:
+                lineColor = self.lineColorTwo
+            pygame.draw.line(self.environment.display, lineColor, dotLocations["topRight"], dotLocations["bottomRight"], self.lineWidth)
+        if numToFactorize % 5 == 0:
+            if (numToFactorize/5) % 5 == 0:
+                lineColor = self.lineColorOne
+            else:
+                lineColor = self.lineColorTwo
+            pygame.draw.line(self.environment.display, lineColor, dotLocations["bottomLeft"], dotLocations["bottomRight"], self.lineWidth)
+        if numToFactorize % 7 == 0:
+            if (numToFactorize/7) % 7 == 0:
+                lineColor = self.lineColorOne
+            else:
+                lineColor = self.lineColorTwo
+            pygame.draw.line(self.environment.display, lineColor, dotLocations["topLeft"], dotLocations["bottomLeft"], self.lineWidth)
+
+
+        if self.board[location] % 11 == 0:
+            pygame.draw.rect(self.environment.display, self.playerColors[1], ((int(dotLocations['topLeft'][1] + self.dotSize/2),
+                                                                               int(dotLocations['topLeft'][0] + self.dotSize/2)),
+                                                                              (self.spaceBetweenDots  * 0.9, self.spaceBetweenDots * 0.9)))
+        if self.board[location] % 13 == 0:
+            pygame.draw.rect(self.environment.display, self.playerColors[0],
+                             ((int(dotLocations['topLeft'][1] + self.dotSize / 2),
+                               int(dotLocations['topLeft'][0] + self.dotSize / 2)),
+                              (self.spaceBetweenDots * 0.9, self.spaceBetweenDots * 0.9)))
 
     def userClickedLocation(self, location):
         xDotLoc = (location[0] - self.screenBuffer) / self.spaceBetweenDots
@@ -121,18 +155,39 @@ class game:
                 self.dotSelected = None
 
 
-    def playerMadeMove(self, location, moveType):
-        if location[1] >= (self.numDots - 1):
-            self.board[(location[0], location[1]-1)] = 5
-        elif location[0] >= (self.numDots - 1):
-            self.board[(location[0]-1, location[1])] = 3
-        else:
-            self.board[location] = moveType
+    def convertNumToLetter(self, num):
+        if num == 2:
+            return"u"
+        elif num == 3:
+            return "r"
+        elif num == 5:
+            return "d"
+        elif num  == 7:
+            return "l"
 
-        if self.playerTurn == 0:
-            self.playerTurn = 1
+    def playerMadeMove(self, location, moveType):
+        oldScores = [self.player1Score, self.player2Score]
+        if location[1] >= (self.numDots - 1):
+            board_edit(self.board, (self.convertNumToLetter(5)), self.playerTurn, location[1], location[0]+1)
+        elif location[0] >= (self.numDots - 1):
+            board_edit(self.board, (self.convertNumToLetter(3)), self.playerTurn, location[1]+1, location[0])
         else:
-            self.playerTurn = 0
+
+            board_edit(self.board, (self.convertNumToLetter(moveType)), self.playerTurn, location[1]+1, location[0]+1)
+
+        pointValues = points(self.board)
+        self.player1Score = pointValues[0]
+        self.player2Score = pointValues[1]
+
+        newScores = [self.player1Score, self.player2Score]
+
+        if oldScores[0] == newScores[0] and oldScores[1] == newScores[1]:
+            if self.playerTurn == 1:
+                self.playerTurn = 2
+            else:
+                self.playerTurn = 1
+
+
 
     def checkForValidMove(self, dot1, dot2):
         moveDirection = None
@@ -160,7 +215,7 @@ class game:
         self.environment.runEnviroment()
         self.environment.backgroundColor = self.backgroundColor
         pygame.time.set_timer(self.RENDEREVENT, 200)
-
+        #self.environment.playBackgroundMusic("backgroundMusic", 10)
         self.updateGameScreen()
 
         while not self.done:
