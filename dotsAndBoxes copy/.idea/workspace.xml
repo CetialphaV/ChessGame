@@ -52,8 +52,8 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="410" />
-    <option name="y" value="175" />
+    <option name="x" value="-175" />
+    <option name="y" value="693" />
     <option name="width" value="1680" />
     <option name="height" value="885" />
   </component>
@@ -75,6 +75,9 @@
       </pane>
       <pane id="Scope" />
     </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
