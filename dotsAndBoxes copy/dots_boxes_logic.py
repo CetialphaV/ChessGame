@@ -50,3 +50,8 @@ def board_edit(board, position, player, row_box, col_box):
         except:
             continue
     return board
+
+board = board_maker(7, 7)
+board_edit(board, 'u', 1, 2, 2)
+
+print(board)
