@@ -42,7 +42,7 @@ class game:
         self.drawDots()
         self.drawLines()
         self.environment.renderChildren()
-        self.displayScore()
+        self.displayScoreAndTurn()
         pygame.display.flip()
 
 
@@ -70,20 +70,23 @@ class game:
 
         self.done = squareNotDivisibleBy210
 
-    def message_display(self, text, pos, fontSize, bottomLeftAlignment=True):
+    def message_display(self, text, pos, fontSize, bottomLeftAlignment=True, centerAlignment=False):
         largeText = pygame.font.Font('freesansbold.ttf', fontSize)
         textSurface = largeText.render(text, True, self.textColor)
         textRect = textSurface.get_rect()
         if bottomLeftAlignment:
             textRect.bottomleft = pos
+        elif centerAlignment:
+            textRect.center = pos
         else:
             textRect.bottomright = pos
         self.environment.display.blit(textSurface, textRect)
 
-    def displayScore(self):
+    def displayScoreAndTurn(self):
 
         self.message_display(f"Player 1 Score: {self.player1Score}", (int((self.screenBuffer * 2)), int(self.screenBuffer/2)), self.fontSize)
         self.message_display(f"Player 2 Score: {self.player2Score}", (int(self.size - self.screenBuffer * 2), int(self.screenBuffer / 2)), self.fontSize, False)
+        self.message_display(f"Player Turn: {self.playerTurn}", (int(self.size/2), int(self.size - self.screenBuffer/2)), self.fontSize, False,  centerAlignment=True)
 
 
     def getDotsForLocation(self, location):
@@ -168,11 +171,16 @@ class game:
     def playerMadeMove(self, location, moveType):
         oldScores = [self.player1Score, self.player2Score]
         if location[1] >= (self.numDots - 1):
+            if self.board[(location[1]-1, location[0])] % 5 == 0:
+                return
             board_edit(self.board, (self.convertNumToLetter(5)), self.playerTurn, location[1], location[0]+1)
         elif location[0] >= (self.numDots - 1):
+            if self.board[(location[1], location[0]-1)] % moveType == 3:
+                return
             board_edit(self.board, (self.convertNumToLetter(3)), self.playerTurn, location[1]+1, location[0])
         else:
-
+            if self.board[(location[1], location[0])] % moveType == 0:
+                return
             board_edit(self.board, (self.convertNumToLetter(moveType)), self.playerTurn, location[1]+1, location[0]+1)
 
         pointValues = points(self.board)
@@ -215,7 +223,9 @@ class game:
         self.environment.runEnviroment()
         self.environment.backgroundColor = self.backgroundColor
         pygame.time.set_timer(self.RENDEREVENT, 200)
-        #self.environment.playBackgroundMusic("backgroundMusic", 5)
+
+        self.environment.playBackgroundMusic("backgroundMusic", 10)
+
         self.updateGameScreen()
 
         while not self.done:
