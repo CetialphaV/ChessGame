@@ -68,8 +68,6 @@ def box_boy(board, num_alt_moves):
     move = minimizer(a, b)
     return move
 
-board = [[2, 5*2, 3], [7*3, 210*13, 7*5]]
-#print(rand(board))
 print(box_boy(board, 500))
 
 
