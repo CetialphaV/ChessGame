@@ -215,7 +215,7 @@ class game:
         self.environment.runEnviroment()
         self.environment.backgroundColor = self.backgroundColor
         pygame.time.set_timer(self.RENDEREVENT, 200)
-        #self.environment.playBackgroundMusic("backgroundMusic", 10)
+        #self.environment.playBackgroundMusic("backgroundMusic", 5)
         self.updateGameScreen()
 
         while not self.done:
